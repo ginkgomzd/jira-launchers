@@ -1,0 +1,101 @@
+#!/bin/bash
+
+jira_proj_jql() {
+  echo $(jira_project_in $1)'%20AND%20resolution%20%3D%20Unresolved%20ORDER%20BY%20updated%20DESC'
+}
+
+jira_sprint_jql() {
+  echo $(jira_project_in $1)'%20AND%20fixVersion%20%3D%20earliestUnreleasedVersion()%20ORDER%20BY%20project%2C%20component%2C%20priority'
+}
+
+jira_backlog_jql() {
+  echo $(jira_project_in $1)' AND fixVersion is EMPTY AND statusCategory !%3D Done ORDER BY project%2C component'
+}
+
+jira_project_in() {
+  name=$(echo $1 | tr '[a-z]' '[A-Z]')
+  name=$( [[ ${#name} -eq 0 ]] && echo 'projectsLeadByUser()' || echo '('$name')' )
+  echo 'project%20in%20'$name
+}
+
+jira_detect_issue_key() {
+  last_place=$((${#1}-1))
+  last_char="${1:$last_place:1}"  
+  re='^[0-9]+$'
+  if [[ $last_char =~ $re ]] ; then 
+    echo true
+  fi
+}
+
+jira_filter() {
+  case "$1" in
+  support)
+    echo '13300'
+    ;;
+  queue)
+    echo '13401'
+    ;;
+  this-sprint)
+    echo '13404'
+    ;;
+  my|mysprint)
+    echo '13405'
+    ;;
+  unsched)
+    echo '12305'
+    ;;
+  *)
+    echo 0
+  esac
+}
+
+jira_cmds() {
+  if [ "$(jira_filter $1)" -ne "0" ] ; then
+    jira_cmds filter $1
+    exit
+  fi
+
+  case "$1" in
+  f|filter)
+    cmd='/issues/?filter='$(jira_filter $2)
+    ;;
+  d|dash|dashboard)
+    cmd='/secure/Dashboard.jspa'
+    ;;
+  q|search)
+    cmd='/issues/?jql='
+    ;;
+  proj|p|issue)
+    cmd='/browse' 
+    ;;
+  s|sprint)
+    cmd='/issues/?filter='$(jira_filter this-sprint)'&jql='$(jira_sprint_jql $2)
+    ;;
+  b|bkl|backlog)
+    cmd='/issues/?filter='$(jira_filter unsched)'&jql='$(jira_backlog_jql $2)
+    ;;
+  *) 
+    if [[ $(jira_detect_issue_key $1) ]] ; then
+      cmd=$(jira_cmds issue)/$1
+    else # try to open the project 
+#      cmd=$(jira_cmds search)$(jira_proj_jql $1)
+      cmd=$(jira_cmds s $1)
+    fi
+    ;;
+  esac
+  echo $cmd
+}
+
+jira() {
+  jira_host=https://ginkgostreet.atlassian.net
+  jira_url=$jira_host$(jira_cmds $@)
+
+  xdg-open "$jira_url" 2>/dev/null
+}
+
+if [ $# == 0 ]; then
+  jira search; exit; 
+fi 
+
+# JUST DO IT! (tm)
+jira $@
