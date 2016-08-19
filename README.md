@@ -22,6 +22,7 @@ http://alvinalexander.com/mac-os-x/exec-unix-shell-script-mac-finder-execute-cli
 https://superuser.com/questions/4368/os-x-equivalent-of-windows-run-box#4383
 
 ## Configure
+* set jira_host to your jira instance url
 * alias filter ids in jira_filter()
 * adjust e.g. order by's in ..._jql() functions
 * build your own commands in jira_cmds() (watch out for filter alias name collissions, which take precedence)
