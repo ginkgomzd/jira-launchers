@@ -12,11 +12,23 @@ jira_backlog_jql() {
   echo $(jira_project_in $1)' AND fixVersion is EMPTY AND statusCategory !%3D Done ORDER BY project%2C component'
 }
 
+jira_unestimated_jql() {
+  echo $(jira_project_in $1)' AND issueType not in (Epic, Story, Bug) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
+}
+
+jira_postponed_jql() {
+  echo $(jira_project_in $1)' AND resolution=Postponed ORDER BY updated ASC'
+}
+
 jira_project_in() {
   name=$(echo $1 | tr '[a-z]' '[A-Z]')
   name=$( [[ ${#name} -eq 0 ]] && echo 'projectsLeadByUser()' || echo '('$name')' )
   echo 'project%20in%20'$name
 }
+
+# add a little bit of flourish to jql queries
+# by loading a filter so that it's name is displayed
+FILTER_OVERRIDE_FMT='/issues/?filter=%s&jql=%s'
 
 jira_detect_issue_key() {
   last_place=$((${#1}-1))
@@ -29,22 +41,28 @@ jira_detect_issue_key() {
 
 jira_filter() {
   case "$1" in
-  support)
-    echo '13300'
-    ;;
   queue)
     echo '13401'
+    ;;
+  mysprint)
+    echo '13405'
+    ;;
+  unestimated)
+    echo '15100'
+    ;;
+  unscheduled)
+    echo '12305'
+    ;;
+  postponed)
+    echo '13900'
     ;;
   this-sprint)
     echo '13404'
     ;;
-  my|mysprint)
-    echo '13405'
+  time-logging)
+    echo '14700'
     ;;
-  unsched)
-    echo '12305'
-    ;;
-  *)
+   *)
     echo 0
   esac
 }
@@ -56,7 +74,37 @@ jira_cmds() {
   fi
 
   case "$1" in
-  f|filter)
+  est|estimate)
+    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$(jira_unestimated_jql $2)"
+    ;;
+  tc|time-cal)
+    cmd='/secure/TempoUserBoard!calendar.jspa?v=1&periodType=MONTH&periodView=WEEK'
+    ;;
+  ts|time-sheet)
+    cmd='/secure/TempoUserBoard!timesheet.jspa?&periodType=MONTH&periodView=WEEK'
+    ;;
+  tr|time-report)
+    cmd='/secure/TempoSearchBoard!report.jspa?v=1&search_filter=13404&periodView=MONTH'
+    ;;
+  tp|time-print)
+    cmd='/secure/TempoUserBoard!reportPrint.jspa?v=1&periodType=MONTH&periodView=DAY'
+    ;;
+  tx|time-export)
+    cmd='/secure/TempoUserBoard!excel.jspa?v=1&periodType=MONTH&periodView=WEEK'
+    ;;
+  tl|tempo-timeline)
+    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!timeline/members'
+    ;;
+  tk|tempo-kanban)
+    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!board'
+    ;;
+  tb|tempo-backlog|tempo-iteration)
+    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!iteration'
+    ;;
+  p|postponed|deep-backlog)
+    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter postponed)" "$(jira_postponed_jql $2)"
+    ;;
+  filter)
     cmd='/issues/?filter='$(jira_filter $2)
     ;;
   d|dash|dashboard)
@@ -65,21 +113,28 @@ jira_cmds() {
   q|search)
     cmd='/issues/?jql='
     ;;
-  proj|p|issue)
-    cmd='/browse' 
+  issue)
+    cmd='/browse'
+    ;;
+  proj)
+    #/browse supports case-insensitive; /projects is case-sensitive
+    cmd='/browse/'$2'?selectedItem=com.atlassian.jira.jira-projects-plugin%3Arelease-page&status=released-unreleased'
     ;;
   s|sprint)
-    cmd='/issues/?filter='$(jira_filter this-sprint)'&jql='$(jira_sprint_jql $2)
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter this-sprint)" "$(jira_sprint_jql $2)"
     ;;
   b|bkl|backlog)
-    cmd='/issues/?filter='$(jira_filter unsched)'&jql='$(jira_backlog_jql $2)
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$(jira_backlog_jql $2)"
+    ;;
+  m|my)
+    cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=122'
     ;;
   *) 
     if [[ $(jira_detect_issue_key $1) ]] ; then
       cmd=$(jira_cmds issue)/$1
     else # try to open the project 
 #      cmd=$(jira_cmds search)$(jira_proj_jql $1)
-      cmd=$(jira_cmds s $1)
+      cmd=$(jira_cmds proj $1)
     fi
     ;;
   esac
