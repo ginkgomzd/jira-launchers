@@ -16,6 +16,10 @@ jira_unestimated_jql() {
   echo $(jira_project_in $1)' AND issueType not in (Epic, Story, Bug) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
+jira_stories_jql() {
+  echo $(jira_project_in $1)' AND issuetype in (Story, Epic) AND resolution = Unresolved ORDER BY Status ASC, fixVersion ASC, Priority DESC'
+}
+
 jira_postponed_jql() {
   echo $(jira_project_in $1)' AND resolution=Postponed ORDER BY updated ASC'
 }
@@ -62,6 +66,9 @@ jira_filter() {
   time-logging)
     echo '14700'
     ;;
+  reqs)
+    echo '15101'
+    ;;
    *)
     echo 0
   esac
@@ -74,9 +81,6 @@ jira_cmds() {
   fi
 
   case "$1" in
-  est|estimate)
-    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$(jira_unestimated_jql $2)"
-    ;;
   tc|time-cal)
     cmd='/secure/TempoUserBoard!calendar.jspa?v=1&periodType=MONTH&periodView=WEEK'
     ;;
@@ -120,11 +124,17 @@ jira_cmds() {
     #/browse supports case-insensitive; /projects is case-sensitive
     cmd='/browse/'$2'?selectedItem=com.atlassian.jira.jira-projects-plugin%3Arelease-page&status=released-unreleased'
     ;;
+  est|estimate)
+    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$(jira_unestimated_jql $2)"
+    ;;
   s|sprint)
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter this-sprint)" "$(jira_sprint_jql $2)"
     ;;
   b|bkl|backlog)
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$(jira_backlog_jql $2)"
+    ;;
+  st|stories)
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$(jira_stories_jql $2)"
     ;;
   m|my)
     cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=122'
