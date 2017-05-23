@@ -1,15 +1,48 @@
 #!/bin/bash
 
+jira_browse() {
+# open using system default broswer
+#  xdg-open "$1" 2>/dev/null
+
+  google-chrome "$1" 2>/dev/null
+}
+
+##
+# urlencode <string>
+# https://gist.github.com/cdown/1163649
+jira_url_encode() {
+    old_lc_collate=$LC_COLLATE
+    LC_COLLATE=C
+    
+    local length="${#1}"
+    for (( i = 0; i < length; i++ )); do
+        local c="${1:i:1}"
+        case $c in
+            [a-zA-Z0-9.~_-]) printf "$c" ;;
+            *) printf '%%%02X' "'$c" ;;
+        esac
+    done
+    
+    LC_COLLATE=$old_lc_collate
+}
+##
+# urldecode <string>
+# https://gist.github.com/cdown/1163649
+jira_url_decode() {
+    local url_encoded="${1//+/ }"
+    printf '%b' "${url_encoded//%/\\x}"
+}
+
 jira_proj_jql() {
-  echo $(jira_project_in $1)'%20AND%20resolution%20%3D%20Unresolved%20ORDER%20BY%20updated%20DESC'
+  echo $(jira_project_in $1)' AND resolution = Unresolved ORDER BY updated DESC'
 }
 
 jira_sprint_jql() {
-  echo $(jira_project_in $1)'%20AND%20fixVersion%20%3D%20earliestUnreleasedVersion()%20ORDER%20BY%20project%2C%20component%2C%20priority'
+  echo $(jira_project_in $1)' AND fixVersion = earliestUnreleasedVersion() ORDER BY project, component, priority'
 }
 
 jira_backlog_jql() {
-  echo $(jira_project_in $1)' AND fixVersion is EMPTY AND statusCategory !%3D Done ORDER BY project%2C component'
+  echo $(jira_project_in $1)' AND fixVersion is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
 jira_unestimated_jql() {
@@ -27,7 +60,7 @@ jira_postponed_jql() {
 jira_project_in() {
   name=$(echo $1 | tr '[a-z]' '[A-Z]')
   name=$( [[ ${#name} -eq 0 ]] && echo 'projectsLeadByUser()' || echo '('$name')' )
-  echo 'project%20in%20'$name
+  echo 'project in '$name
 }
 
 # add a little bit of flourish to jql queries
@@ -125,13 +158,16 @@ jira_cmds() {
     cmd='/browse/'$2'?selectedItem=com.atlassian.jira.jira-projects-plugin%3Arelease-page&status=released-unreleased'
     ;;
   est|estimate)
-    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$(jira_unestimated_jql $2)"
+    jql=$(jira_url_encode "$(jira_unestimated_jql $2)")
+    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$jql"
     ;;
   s|sprint)
-    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter this-sprint)" "$(jira_sprint_jql $2)"
+    jql=$(jira_url_encode "$(jira_sprint_jql $2)")
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter this-sprint)" "$jql"
     ;;
   b|bkl|backlog)
-    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$(jira_backlog_jql $2)"
+    jql=$(jira_url_encode "$(jira_backlog_jql $2)")
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$jql"
     ;;
   st|stories)
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$(jira_stories_jql $2)"
@@ -153,9 +189,9 @@ jira_cmds() {
 
 jira() {
   jira_host=https://ginkgostreet.atlassian.net
-  jira_url=$jira_host$(jira_cmds $@)
+  jira_url=$jira_host$(jira_cmds "$@")
 
-  xdg-open "$jira_url" 2>/dev/null
+  jira_browse $jira_url;
 }
 
 if [ $# == 0 ]; then
