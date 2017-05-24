@@ -139,7 +139,8 @@ jira_cmds() {
     cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!iteration'
     ;;
   p|postponed|deep-backlog)
-    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter postponed)" "$(jira_postponed_jql $2)"
+    jql=$(jira_url_encode "$(jira_postponed_jql $2)")
+    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter postponed)" "$jql"
     ;;
   filter)
     cmd='/issues/?filter='$(jira_filter $2)
