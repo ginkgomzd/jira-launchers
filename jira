@@ -13,7 +13,7 @@ jira_browse() {
 jira_url_encode() {
     old_lc_collate=$LC_COLLATE
     LC_COLLATE=C
-    
+
     local length="${#1}"
     for (( i = 0; i < length; i++ )); do
         local c="${1:i:1}"
@@ -22,7 +22,7 @@ jira_url_encode() {
             *) printf '%%%02X' "'$c" ;;
         esac
     done
-    
+
     LC_COLLATE=$old_lc_collate
 }
 ##
@@ -69,9 +69,9 @@ FILTER_OVERRIDE_FMT='/issues/?filter=%s&jql=%s'
 
 jira_detect_issue_key() {
   last_place=$((${#1}-1))
-  last_char="${1:$last_place:1}"  
+  last_char="${1:$last_place:1}"
   re='^[0-9]+$'
-  if [[ $last_char =~ $re ]] ; then 
+  if [[ $last_char =~ $re ]] ; then
     echo true
   fi
 }
@@ -115,28 +115,13 @@ jira_cmds() {
 
   case "$1" in
   tc|time-cal)
-    cmd='/secure/TempoUserBoard!calendar.jspa?v=1&periodType=MONTH&periodView=WEEK'
+    cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-my-work#!/?type=TIME'
     ;;
   ts|time-sheet)
-    cmd='/secure/TempoUserBoard!timesheet.jspa?&periodType=MONTH&periodView=WEEK'
+    cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-my-work#!/timesheet/?dateDisplayType=days&groupBy=issue&viewType=TIMESHEET'
     ;;
   tr|time-report)
-    cmd='/secure/TempoSearchBoard!report.jspa?v=1&search_filter=13404&periodView=MONTH'
-    ;;
-  tp|time-print)
-    cmd='/secure/TempoUserBoard!reportPrint.jspa?v=1&periodType=MONTH&periodView=DAY'
-    ;;
-  tx|time-export)
-    cmd='/secure/TempoUserBoard!excel.jspa?v=1&periodType=MONTH&periodView=WEEK'
-    ;;
-  tl|tempo-timeline)
-    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!timeline/members'
-    ;;
-  tk|tempo-kanban)
-    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!board'
-    ;;
-  tb|tempo-backlog|tempo-iteration)
-    cmd='/plugins/servlet/ac/com.tempoplugin.tempo-planner/TeamPlanning#!iteration'
+    cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-reports#!/?dateDisplayType=days&groupBy=issue&groupBy=project&groupBy=worker&viewType=LIST'
     ;;
   p|postponed|deep-backlog)
     jql=$(jira_url_encode "$(jira_postponed_jql $2)")
@@ -176,10 +161,10 @@ jira_cmds() {
   m|my)
     cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=122'
     ;;
-  *) 
+  *)
     if [[ $(jira_detect_issue_key $1) ]] ; then
       cmd=$(jira_cmds issue)/$1
-    else # try to open the project 
+    else # try to open the project
 #      cmd=$(jira_cmds search)$(jira_proj_jql $1)
       cmd=$(jira_cmds proj $1)
     fi
@@ -196,8 +181,8 @@ jira() {
 }
 
 if [ $# == 0 ]; then
-  jira search; exit; 
-fi 
+  jira search; exit;
+fi
 
 # JUST DO IT! (tm)
 jira $@
