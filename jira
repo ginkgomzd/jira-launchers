@@ -1,10 +1,9 @@
 #!/bin/bash
 
 jira_browse() {
-# open using system default broswer
-#  xdg-open "$1" 2>/dev/null
 
-  google-chrome "$1" 2>/dev/null
+  xdg-open "$1" 2>/dev/null  # open using system default broswer
+#  google-chrome "$1" 2>/dev/null
 }
 
 ##
