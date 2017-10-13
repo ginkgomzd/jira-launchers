@@ -101,8 +101,14 @@ jira_filter() {
   time-logging)
     echo '14700'
     ;;
+  today)
+    echo '16604'
+    ;;
   reqs)
     echo '15101'
+    ;;
+  soon)
+    echo '16605'
     ;;
    *)
     echo 0
@@ -135,10 +141,13 @@ jira_cmds() {
   d|dash|dashboard)
     cmd='/secure/Dashboard.jspa'
     ;;
-  q|search)
+  q|query)
     cmd='/issues/?jql='
     ;;
-  issue)
+  i|current|issues)
+    cmd='/issues/'
+    ;;
+  browse|issue)
     cmd='/browse'
     ;;
   proj)
@@ -161,11 +170,11 @@ jira_cmds() {
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$(jira_stories_jql $2)"
     ;;
   m|my)
-    cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=122'
+    cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=158'
     ;;
   *)
     if [[ $(jira_detect_issue_key $1) ]] ; then
-      cmd=$(jira_cmds issue)/$1
+      cmd=$(jira_cmds browse)/$1
     else # try to open the project
 #      cmd=$(jira_cmds search)$(jira_proj_jql $1)
       cmd=$(jira_cmds proj $1)
