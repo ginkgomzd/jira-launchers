@@ -37,7 +37,7 @@ jira_proj_jql() {
 }
 
 jira_sprint_jql() {
-  echo $(jira_project_in $1)' AND fixVersion = earliestUnreleasedVersion() ORDER BY project, component, priority'
+  echo $(jira_project_in $1)' AND fixVersion = earliestUnreleasedVersion() AND IssueType not in (Sprint) ORDER BY project, component, priority'
 }
 
 jira_backlog_jql() {
@@ -45,7 +45,7 @@ jira_backlog_jql() {
 }
 
 jira_unestimated_jql() {
-  echo $(jira_project_in $1)' AND issueType not in (Epic, Story, Bug) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
+  echo $(jira_project_in $1)' AND issueType not in (Epic, Story, Bug, Sprint) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
 jira_stories_jql() {
@@ -167,10 +167,17 @@ jira_cmds() {
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$jql"
     ;;
   st|stories)
-    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$(jira_stories_jql $2)"
+    jql=$(jira_url_encode "$(jira_stories_jql $2)")
+    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$jql"
     ;;
   m|my)
     cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=158'
+    ;;
+  sprints)
+    cmd='/secure/RapidBoard.jspa?rapidView=64&quickFilter=158'
+    ;;
+  planning)
+    cmd='/secure/RapidBoard.jspa?rapidView=66&quickFilter=167'
     ;;
   *)
     if [[ $(jira_detect_issue_key $1) ]] ; then
