@@ -183,7 +183,6 @@ jira_cmds() {
     if [[ $(jira_detect_issue_key $1) ]] ; then
       cmd=$(jira_cmds browse)/$1
     else # try to open the project
-#      cmd=$(jira_cmds search)$(jira_proj_jql $1)
       cmd=$(jira_cmds proj $1)
     fi
     ;;
@@ -199,7 +198,7 @@ jira() {
 }
 
 if [ $# == 0 ]; then
-  jira search; exit;
+  jira query; exit;
 fi
 
 # JUST DO IT! (tm)
