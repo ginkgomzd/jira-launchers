@@ -142,7 +142,9 @@ jira_cmds() {
     cmd='/secure/Dashboard.jspa'
     ;;
   q|query)
-    cmd='/issues/?jql='
+    shift # drop the first param (q)
+    query="$@"
+    cmd='/issues/?jql='$(jira_url_encode "$query")
     ;;
   i|current|issues)
     cmd='/issues/'
