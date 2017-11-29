@@ -176,7 +176,7 @@ jira_cmds() {
     cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=158'
     ;;
   sprints)
-    cmd='/secure/RapidBoard.jspa?rapidView=64&quickFilter=158'
+    cmd='/secure/RapidBoard.jspa?rapidView=64'
     ;;
   planning)
     cmd='/secure/RapidBoard.jspa?rapidView=66&quickFilter=167'
