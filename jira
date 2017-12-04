@@ -179,7 +179,7 @@ jira_cmds() {
     cmd='/secure/RapidBoard.jspa?rapidView=64'
     ;;
   planning)
-    cmd='/secure/RapidBoard.jspa?rapidView=66&quickFilter=167'
+    cmd='/secure/RapidBoard.jspa?rapidView=66'
     ;;
   *)
     if [[ $(jira_detect_issue_key $1) ]] ; then
