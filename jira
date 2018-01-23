@@ -200,7 +200,7 @@ jira() {
 }
 
 if [ $# == 0 ]; then
-  jira query; exit;
+  jira issues; exit;
 fi
 
 # JUST DO IT! (tm)
