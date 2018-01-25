@@ -56,6 +56,12 @@ jira_postponed_jql() {
   echo $(jira_project_in $1)' AND resolution=Postponed ORDER BY updated ASC'
 }
 
+jira_quick_search() {
+  project_in=$(jira_project_in $1)
+  shift
+  echo $project_in" AND text ~ '$@'"
+}
+
 jira_project_in() {
   name=$(echo $1 | tr '[a-z]' '[A-Z]')
   name=$( [[ ${#name} -eq 0 ]] && echo 'projectsLeadByUser()' || echo '('$name')' )
@@ -144,6 +150,11 @@ jira_cmds() {
   q|query)
     shift # drop the first param (q)
     query="$@"
+    cmd='/issues/?jql='$(jira_url_encode "$query")
+    ;;
+  qk|quick)
+    shift # drop the first param
+    query=$(jira_quick_search "$@")
     cmd='/issues/?jql='$(jira_url_encode "$query")
     ;;
   i|current|issues)
