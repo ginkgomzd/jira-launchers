@@ -130,7 +130,7 @@ jira_cmds() {
     cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-my-work#!/timesheet/?dateDisplayType=days&groupBy=issue&viewType=TIMESHEET'
     ;;
   tr|time-report)
-    cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-reports#!/?dateDisplayType=days&groupBy=issue&groupBy=project&groupBy=worker&viewType=LIST'
+    cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-reports#!/overview'
     ;;
   p|postponed|deep-backlog)
     jql=$(jira_url_encode "$(jira_postponed_jql $2)")
