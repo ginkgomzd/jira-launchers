@@ -149,7 +149,8 @@ jira_cmds() {
     ;;
   qk|quick)
     shift # drop the first param
-    cmd='/secure/QuickSearch.jspa?searchString='$(jira_url_encode "$@")
+    searchString="${@/unresolved//} unresolved" # open issues only: kill duplicate 'unresolved'
+    cmd='/secure/QuickSearch.jspa?searchString='$(jira_url_encode "$searchString")
     ;;
   i|current|issues)
     cmd='/issues/'
