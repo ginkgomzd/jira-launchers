@@ -178,8 +178,8 @@ jira_cmds() {
     jql=$(jira_url_encode "$(jira_stories_jql $2)")
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$jql"
     ;;
-  m|my)
-    cmd='/secure/RapidBoard.jspa?rapidView=55&quickFilter=158'
+  m|my|todo)
+    cmd='/secure/RapidBoard.jspa?rapidView=59&quickFilter=140'
     ;;
   sprints)
     cmd='/secure/RapidBoard.jspa?rapidView=64'
