@@ -190,6 +190,9 @@ jira_cmds() {
   planning)
     cmd='/secure/RapidBoard.jspa?rapidView=66&quickFilter=176'
     ;;
+  conf|config|settings)
+    cmd='/secure/admin/ViewApplicationProperties.jspa'
+    ;;
   *)
     if [[ $(jira_detect_issue_key $1) ]] ; then
       cmd=$(jira_cmds browse)/$1
