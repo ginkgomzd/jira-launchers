@@ -34,27 +34,27 @@ jira_url_decode() {
 }
 
 jira_proj_jql() {
-  echo $(jira_project_in $1)' AND resolution = Unresolved ORDER BY updated DESC'
+  echo $(jira_project_in "$1")' AND resolution = Unresolved ORDER BY updated DESC'
 }
 
 jira_sprint_jql() {
-  echo $(jira_project_in $1)' AND fixVersion = earliestUnreleasedVersion() AND IssueType not in (Sprint) ORDER BY project, component, priority'
+  echo $(jira_project_in "$1")' AND fixVersion = earliestUnreleasedVersion() AND IssueType not in (Sprint) ORDER BY project, component, priority'
 }
 
 jira_backlog_jql() {
-  echo $(jira_project_in $1)' AND fixVersion is EMPTY AND statusCategory != Done ORDER BY project, component'
+  echo $(jira_project_in "$1")' AND fixVersion is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
 jira_unestimated_jql() {
-  echo $(jira_project_in $1)' AND issueType not in (Epic, Story, Bug, Sprint) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
+  echo $(jira_project_in "$1")' AND issueType not in (Epic, Story, Bug, Sprint) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
 jira_stories_jql() {
-  echo $(jira_project_in $1)' AND issuetype in (Story, Epic) AND resolution = Unresolved ORDER BY Status ASC, fixVersion ASC, Priority DESC'
+  echo $(jira_project_in "$1")' AND issuetype in (Story, Epic) AND resolution = Unresolved ORDER BY Status ASC, fixVersion ASC, Priority DESC'
 }
 
 jira_postponed_jql() {
-  echo $(jira_project_in $1)' AND resolution=Postponed ORDER BY updated ASC'
+  echo $(jira_project_in "$1")' AND resolution=Postponed ORDER BY updated ASC'
 }
 
 jira_project_in() {
@@ -144,12 +144,12 @@ jira_cmds() {
     ;;
   q|query)
     shift # drop the first param (q)
-    query="$@"
+    query="$*"
     cmd='/issues/?jql='$(jira_url_encode "$query")
     ;;
   qk|quick)
     shift # drop the first param
-    searchString="${@/unresolved/} unresolved" # open issues only: kill duplicate 'unresolved'
+    searchString="${*/unresolved/} unresolved" # open issues only: kill duplicate 'unresolved'
     cmd='/secure/QuickSearch.jspa?searchString='$(jira_url_encode "$searchString")
     ;;
   i|current|issues)
@@ -210,4 +210,4 @@ if [ $# == 0 ]; then
 fi
 
 # JUST DO IT! (tm)
-jira $@
+jira "$@"
