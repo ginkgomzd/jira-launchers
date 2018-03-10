@@ -12,7 +12,7 @@ jira_browse() {
 jira_url_encode() {
     old_lc_collate=$LC_COLLATE
     LC_COLLATE=C
-    to_encode="$@"
+    to_encode="$*"
 
     local length="${#to_encode}"
     for (( i = 0; i < length; i++ )); do
