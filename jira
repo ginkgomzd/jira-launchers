@@ -181,7 +181,7 @@ jira_cmds() {
   my|todo)
     cmd='/issues/?filter='$(jira_filter mysprint)
     ;;
-  b|board)
+  bd|board)
     cmd='/secure/RapidBoard.jspa?rapidView=59&quickFilter=140'
     ;;
   sprints)
