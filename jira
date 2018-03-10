@@ -170,7 +170,7 @@ jira_cmds() {
     jql=$(jira_url_encode "$(jira_sprint_jql $2)")
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter this-sprint)" "$jql"
     ;;
-  b|bkl|backlog)
+  bk|backlog)
     jql=$(jira_url_encode "$(jira_backlog_jql $2)")
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$jql"
     ;;
@@ -178,7 +178,10 @@ jira_cmds() {
     jql=$(jira_url_encode "$(jira_stories_jql $2)")
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$jql"
     ;;
-  m|my|todo)
+  my|todo)
+    cmd='/issues/?filter='$(jira_filter mysprint)
+    ;;
+  b|board)
     cmd='/secure/RapidBoard.jspa?rapidView=59&quickFilter=140'
     ;;
   sprints)
