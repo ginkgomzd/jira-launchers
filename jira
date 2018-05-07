@@ -59,7 +59,7 @@ jira_postponed_jql() {
 
 jira_project_in() {
   name=$(echo $1 | tr '[a-z]' '[A-Z]')
-  name=$( [[ ${#name} -eq 0 ]] && echo 'projectsLeadByUser()' || echo '('$name')' )
+  name=$( [[ ${#name} -eq 0 ]] && echo 'projectsWhereUserHasRole("Users")' || echo '('$name')' )
   echo 'project in '$name
 }
 
