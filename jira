@@ -37,8 +37,12 @@ jira_proj_jql() {
   echo $(jira_project_in "$1")' AND resolution = Unresolved ORDER BY updated DESC'
 }
 
+jira_fix_version_snipit_jql() {
+  echo '(Account.category = "Ad Hoc, Support, and Maintenance" AND fixVersion is EMPTY OR fixVersion = earliestUnreleasedVersion()) AND IssueType not in (Sprint)'
+}
+
 jira_sprint_jql() {
-  echo $(jira_project_in "$1")' AND fixVersion = earliestUnreleasedVersion() AND IssueType not in (Sprint) ORDER BY project, component, priority'
+  echo $(jira_project_in "$1")' AND '$(jira_fix_version_snipit_jql)' ORDER BY project, component, priority'
 }
 
 jira_backlog_jql() {
