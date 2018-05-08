@@ -42,7 +42,7 @@ jira_fix_version_snipit_jql() {
 }
 
 jira_sprint_jql() {
-  echo $(jira_project_in "$1")' AND '$(jira_fix_version_snipit_jql)' AND resoltuion = Unresolved ORDER BY project, component, priority'
+  echo $(jira_project_in "$1")' AND '$(jira_fix_version_snipit_jql)' AND resolution = Unresolved ORDER BY project, component, priority'
 }
 
 jira_backlog_jql() {
