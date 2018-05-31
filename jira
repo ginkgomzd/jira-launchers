@@ -96,6 +96,9 @@ jira_filter() {
   soon)
     echo '16605'
     ;;
+  ad-hoc)
+    echo '16626'
+    ;;
    *)
     echo 0
   esac
