@@ -48,9 +48,6 @@ jira_sprint_jql() {
 jira_backlog_jql() {
   echo $(jira_project_in "$1")' AND fixVersion is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
-
-jira_unestimated_jql() {
-  echo $(jira_project_in "$1")' AND issueType not in (Epic, Story, Bug, Sprint) AND originalEstimate is EMPTY AND statusCategory != Done ORDER BY project, component'
 }
 
 jira_stories_jql() {
@@ -82,29 +79,14 @@ jira_detect_issue_key() {
 
 jira_filter() {
   case "$1" in
-  exp|expediting)
-    echo '16603'
-    ;;
-  queue)
-    echo '16200'
-    ;;
   mysprint)
     echo '13405'
-    ;;
-  unestimated)
-    echo '15100'
     ;;
   unscheduled)
     echo '12305'
     ;;
-  postponed)
-    echo '13900'
-    ;;
   this-sprint)
     echo '13404'
-    ;;
-  time-logging)
-    echo '14700'
     ;;
   today)
     echo '16604'
@@ -164,10 +146,6 @@ jira_cmds() {
   proj)
     #/browse supports case-insensitive; /projects is case-sensitive
     cmd='/browse/'$2'?selectedItem=com.atlassian.jira.jira-projects-plugin%3Arelease-page&status=released-unreleased'
-    ;;
-  est|estimate)
-    jql=$(jira_url_encode "$(jira_unestimated_jql $2)")
-    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter unestimated)" "$jql"
     ;;
   s|sprint)
     jql=$(jira_url_encode "$(jira_sprint_jql $2)")
