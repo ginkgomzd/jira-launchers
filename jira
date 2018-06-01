@@ -46,7 +46,7 @@ jira_sprint_jql() {
 }
 
 jira_backlog_jql() {
-  echo $(jira_project_in "$1")' AND fixVersion is EMPTY OR fixVersion != earliestUnreleasedVersion() AND resolution = Unresolved ORDER BY cf[10007] ASC, status ASC'
+  echo $(jira_project_in "$1")' AND (fixVersion is EMPTY OR fixVersion != earliestUnreleasedVersion()) AND resolution = Unresolved ORDER BY cf[10007] ASC, status ASC'
 }
 
 jira_stories_jql() {
