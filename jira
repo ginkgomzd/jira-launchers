@@ -122,10 +122,6 @@ jira_cmds() {
   tr|time-report)
     cmd='/plugins/servlet/ac/is.origo.jira.tempo-plugin/tempo-reports#!/overview'
     ;;
-  p|postponed|deep-backlog)
-    jql=$(jira_url_encode "$(jira_postponed_jql $2)")
-    printf -v cmd $FILTER_OVERRIDE_FMT "$(jira_filter postponed)" "$jql"
-    ;;
   filter)
     cmd='/issues/?filter='$(jira_filter $2)
     ;;
