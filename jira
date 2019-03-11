@@ -35,24 +35,16 @@ jira_url_decode() {
     printf '%b' "${url_encoded//%/\\x}"
 }
 
-jira_proj_jql() {
-  echo $(jira_project_in "$1")' AND resolution = Unresolved ORDER BY updated DESC'
-}
-
 jira_fix_version_snipit_jql() {
-  echo 'fixVersion = earliestUnreleasedVersion() AND IssueType not in (Sprint)'
+  echo '(fixVersion in unreleasedVersions() OR fixVersion is EMPTY)'
 }
 
 jira_sprint_jql() {
-  echo $(jira_project_in "$1")' AND '$(jira_fix_version_snipit_jql)' AND resolution = Unresolved ORDER BY cf[10007] ASC, status ASC, Rank, priority'
+  echo $(jira_project_in "$1")' AND '$(jira_fix_version_snipit_jql)' AND Status != Planning ORDER BY cf[10007] ASC, status ASC, Rank, priority'
 }
 
 jira_backlog_jql() {
-  echo $(jira_project_in "$1")' AND (fixVersion is EMPTY OR fixVersion != earliestUnreleasedVersion()) AND resolution = Unresolved ORDER BY cf[10007] ASC, status ASC'
-}
-
-jira_stories_jql() {
-  echo $(jira_project_in "$1")' AND issuetype in (Story, Epic) AND resolution = Unresolved ORDER BY Status ASC, fixVersion ASC, Priority DESC'
+  echo $(jira_project_in "$1")' AND (fixVersion is EMPTY OR fixVersion != earliestUnreleasedVersion()) AND Status = Planning ORDER BY cf[10007] ASC, status ASC'
 }
 
 jira_postponed_jql() {
@@ -130,7 +122,7 @@ jira_cmds() {
     ;;
   q|query)
     shift # drop the first param (q)
-    query="$*"
+    query="$* and resolution = unresolved"
     cmd='/issues/?jql='$(jira_url_encode "$query")
     ;;
   qk|quick)
@@ -155,21 +147,11 @@ jira_cmds() {
     jql=$(jira_url_encode "$(jira_backlog_jql $2)")
     printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter unscheduled)" "$jql"
     ;;
-  st|stories)
-    jql=$(jira_url_encode "$(jira_stories_jql $2)")
-    printf -v cmd "$FILTER_OVERRIDE_FMT" "$(jira_filter reqs)" "$jql"
-    ;;
   my|todo)
     cmd='/issues/?filter='$(jira_filter mysprint)
     ;;
   bd|board)
     cmd='/secure/RapidBoard.jspa?rapidView=59&quickFilter=140'
-    ;;
-  sprints)
-    cmd='/secure/RapidBoard.jspa?rapidView=64'
-    ;;
-  planning)
-    cmd='/secure/RapidBoard.jspa?rapidView=66&quickFilter=176'
     ;;
   conf|config|settings)
     cmd='/secure/admin/ViewApplicationProperties.jspa'
