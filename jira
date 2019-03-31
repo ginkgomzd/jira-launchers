@@ -151,7 +151,7 @@ jira_cmds() {
     cmd='/issues/?filter='$(jira_filter mysprint)
     ;;
   bd|board)
-    cmd='/secure/RapidBoard.jspa?rapidView=59&quickFilter=140'
+    cmd='/secure/RapidBoard.jspa?rapidView=55'
     ;;
   conf|config|settings)
     cmd='/secure/admin/ViewApplicationProperties.jspa'
@@ -175,7 +175,7 @@ jira() {
 }
 
 if [ $# == 0 ]; then
-  jira issues; exit;
+  jira board; exit;
 fi
 
 # JUST DO IT! (tm)
