@@ -2,10 +2,10 @@
 
 jira_browse() {
 
-#epiphany web-app
-  epiphany --application-mode --profile="/home/mzd/.config/epiphany/app-epiphany-jira-b25783a8e196a10e6c869d284bdfff09546e43d6" "$1"
-#  xdg-open "$1" 2>/dev/null  # open using system default broswer
-#  google-chrome "$1" 2>/dev/null
+# epiphany web-app:
+# epiphany --application-mode --profile="/home/mzd/.config/epiphany/app-epiphany-jira-b25783a8e196a10e6c869d284bdfff09546e43d6" "$1"
+# xdg-open "$1" 2>/dev/null  # open using system default broswer
+ google-chrome --app="$1" 2>/dev/null
 }
 
 ##
