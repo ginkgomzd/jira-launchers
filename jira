@@ -151,7 +151,7 @@ jira_cmds() {
     cmd='/issues/?filter='$(jira_filter mysprint)
     ;;
   bd|board)
-    cmd='/secure/RapidBoard.jspa?rapidView=55'
+    cmd='/secure/RapidBoard.jspa?rapidView=59'
     ;;
   conf|config|settings)
     cmd='/secure/admin/ViewApplicationProperties.jspa'
